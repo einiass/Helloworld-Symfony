@@ -1,0 +1,11 @@
+# src/OC/PlatformBundle/Resources/config/routing.yml
+
+hello_the_world:
+
+    path:     /hello-world
+    defaults: { _controller: AnnoncesPlatformBundle:Advert:index }
+
+byebye_the_world:
+
+    path:     /byebye-world
+    defaults: { _controller: AnnoncesPlatformBundle:Advert:logout }

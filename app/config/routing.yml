@@ -1,0 +1,3 @@
+annonces_platform:
+    resource: "@AnnoncesPlatformBundle/Resources/config/routing.yml"
+    prefix:   /
