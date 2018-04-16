@@ -1,11 +1,46 @@
 # src/OC/PlatformBundle/Resources/config/routing.yml
 
-hello_the_world:
+annonces_accueil:
+    path:     /{page}
+    defaults: 
+        _controller: AnnoncesPlatformBundle:Advert:index
+        page:   1
+    requirements:
+        page:   \d*
+    
+annonces_view:
+    path:    /reference/{id}
+    defaults: 
+        _controller: AnnoncesPlatformBundle:Advert:view
+    requirements:
+        id:   \d+
+    
+annonces_annonce_courtText:
+    path:    /{annee}/{courtText}.{_format}
+    defaults: 
+        _controller: AnnoncesPlatformBundle:Advert:viewCourtText
+        _format:     html
+    requirements:
+        annee:    \d{4}
+        _format:  html|xml 
+        
+        
+annonces_ajouter:
+    path:    /ajouter
+    defaults:
+        _controller: AnnoncesPlatformBundle:Advert:ajouter
 
-    path:     /hello-world
-    defaults: { _controller: AnnoncesPlatformBundle:Advert:index }
-
-byebye_the_world:
-
-    path:     /byebye-world
-    defaults: { _controller: AnnoncesPlatformBundle:Advert:logout }
+annonces_modifier:
+    path:    /modifier/{id}
+    defaults:
+        _controller: AnnoncesPlatformBundle:Advert:modifier
+    requirements:
+        id:    \d+
+        
+annonces_supprimer:
+    path:    supprimer/{id}
+    defaults:
+        _controller: AnnoncesPlatformBundle:Advert:supprimer
+    requirements:
+        id:    \d+
+        

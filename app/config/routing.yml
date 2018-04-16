@@ -1,3 +1,7 @@
 annonces_platform:
     resource: "@AnnoncesPlatformBundle/Resources/config/routing.yml"
-    prefix:   /
+    prefix:   /{_local}/annonce
+    defaults: 
+        _local:      fr
+    requirements:
+        _local:   fr|en
