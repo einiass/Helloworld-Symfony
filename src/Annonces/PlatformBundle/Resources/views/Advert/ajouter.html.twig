@@ -1,30 +1,26 @@
-<!DOCTYPE html>
+{# src/Annonces/PlatformBundle/Resources/views/Advert/ajouter.html.twig #}
 
-<html>
+{% extends "@AnnoncesPlatform/layout.html.twig" %}
 
-  <head>
+{% block title %}
+  Ajouter une annonce - {{ parent() }}
+{% endblock %}
 
-    <title>Bienvenue sur ma première page avec OpenClassrooms !</title>
+{% block annonces_body %}
 
-  </head>
+  <h2>Ajouter une annonce</h2>
 
-  <body>
+  {{ include("@AnnoncesPlatform/Advert/formulaire.html.twig") }}
 
-    <h1>Formulaire d'ajout annonce!</h1>
+  <p>
+    Vous ajoutez une nouvelle annonce.
+  </p>
 
+  <p>
+    <a href="{{ path('annonces_accueil') }}" class="btn btn-default">
+      <i class="glyphicon glyphicon-chevron-left"></i>
+      Annuler
+    </a>
+  </p>
 
-    <p>
-
-      Le Hello World est un grand classique en programmation.<br>
-
-      Il signifie énormément, car cela veut dire que vous avez<br>
-
-      réussi à exécuter le programme pour accomplir une tâche simple :<br>
-
-      afficher ce hello world !<br><br>
-
-    </p>
-
-  </body>
-
-</html>
+{% endblock %}

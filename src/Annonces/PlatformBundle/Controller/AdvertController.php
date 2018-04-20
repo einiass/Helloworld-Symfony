@@ -13,31 +13,71 @@ class AdvertController extends Controller
 {
     public function indexAction($page)
     {
-		//Recuperation de la valeur de page par defaut seulement lorsqu'elle est vide
-		if($page === '') 
-		{ 
-			$page = 1; 
-		}
-		
-		// On ne sait pas combien de pages il y a
-		// Mais on sait qu'une page doit être supérieure ou égale à 1
-		
-		if ($page < 1) {
-			// On déclenche une exception NotFoundHttpException, cela va afficher
-			// une page d'erreur 404 (qu'on pourra personnaliser plus tard d'ailleurs)
-			throw new NotFoundHttpException('Page "'.$page.'" inexistante.');
-		}
-		
-        //$content = $this->get('templating')->render('OCPlatformBundle:Advert:index.html.twig');
-		$content = $this->render('@AnnoncesPlatform/Advert/index.html.twig', array('nom' => 'Wizou','page' => $page));
-		
+		// ...
+
+		// Notre liste d'annonce en dur
+		$listAdverts = array(
+			array(
+				'title'   => 'Recherche développpeur Symfony3',
+				'id'      => 1,
+				'author'  => 'Alexandre',
+				'content' => 'Nous recherchons un développeur Symfony3 débutant sur Lyon. Blabla…',
+				'date'    => new \Datetime()
+			),
+			array(
+				'title'   => 'Mission de webmaster',
+				'id'      => 2,
+				'author'  => 'Hugo',
+				'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
+				'date'    => new \Datetime()
+			),
+			array(
+				'title'   => 'Offre de stage webdesigner',
+				'id'      => 3,
+				'author'  => 'Mathieu',
+				'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
+				'date'    => new \Datetime()
+			)
+		);
+
+		// Et modifiez le 2nd argument pour injecter notre liste
+		$content = $this->render('@AnnoncesPlatform/Advert/index.html.twig', array('listAdverts' => $listAdverts));
+
 		return $content;
     }
 	
+	public function menuAction($limit)
+	{
+		// On fixe en dur une liste ici, bien entendu par la suite
+		// on la récupérera depuis la BDD !
+		$listAdverts = array(
+		  array('id' => 2, 'title' => 'Recherche développeur Symfony3'),
+		  array('id' => 5, 'title' => 'Mission de webmaster'),
+		  array('id' => 9, 'title' => 'Offre de stage webdesigner')
+		);
+
+		return $this->render('@AnnoncesPlatform/Advert/menu.html.twig', array(
+		  // Tout l'intérêt est ici : le contrôleur passe
+		  // les variables nécessaires au template !
+		  'listAdverts' => $listAdverts
+		));
+	}
+	
 	public function viewAction($id)
     {
-		$content = $this->render('@AnnoncesPlatform/Advert/view.html.twig', array('id' => $id));
 		
+		$advert = array(
+		  'title'   => 'Recherche développpeur Symfony3',
+		  'id'      => $id,
+		  'author'  => 'Alexandre',
+		  'content' => 'Nous recherchons un développeur Symfony3 débutant sur Lyon. Blabla…',
+		  'date'    => new \Datetime()
+		);
+
+		$content = $this->render('@AnnoncesPlatform/Advert/view.html.twig', array(
+		  'advert' => $advert
+		));
+	
 		return $content;
     }
 	
@@ -70,15 +110,22 @@ class AdvertController extends Controller
 	public function modifierAction($id, Request $request)
     {
 		// Ici, on récupérera l'annonce correspondante à $id
+		$advert = array(
+			'title'   => 'Recherche développpeur Symfony',
+			'id'      => $id,
+			'author'  => 'Alexandre',
+			'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
+			'date'    => new \Datetime()
+		);
 
 		// Même mécanisme que pour l'ajout
 		if ($request->isMethod('POST')) {
-		  $request->getSession()->getFlashBag()->add('info', 'Annonce bien modifiée.');
-		  
-		  return $this->redirectToRoute('annonces_view', array('id' => $id));
+			$request->getSession()->getFlashBag()->add('info', 'Annonce bien modifiée.');
+
+			return $this->redirectToRoute('annonces_view', array('id' => $id));
 		}
 
-		$content = $this->render('@AnnoncesPlatform/Advert/modifier.html.twig', array('id' => $id));
+		$content = $this->render('@AnnoncesPlatform/Advert/modifier.html.twig', array('advert' => $advert));
 		
 		return $content;
     }
