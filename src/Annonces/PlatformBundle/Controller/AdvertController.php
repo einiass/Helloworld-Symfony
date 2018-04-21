@@ -39,7 +39,10 @@ class AdvertController extends Controller
 				'date'    => new \Datetime()
 			)
 		);
-
+		
+		// On a donc accès au conteneur :
+		$mailer = $this->container->get('mailer'); 
+		
 		// Et modifiez le 2nd argument pour injecter notre liste
 		$content = $this->render('@AnnoncesPlatform/Advert/index.html.twig', array('listAdverts' => $listAdverts));
 
@@ -89,6 +92,15 @@ class AdvertController extends Controller
 	
 	public function ajouterAction(Request $request)
     {
+		// On récupère le service
+		$antispam = $this->container->get('annonces.antispam');
+
+		// Je pars du principe que $text contient le texte d'un message quelconque
+		$text = ' Je pars du principe que $text contient le texte d un message quelconque Je pars du principe que $text contient le texte d un message quelconque';
+		if ($antispam->isSpam($text)) {
+			throw new \Exception('Votre message a été détecté comme spam !');
+		}
+		
 		// La gestion d'un formulaire est particulière, mais l'idée est la suivante :
 		
 		// Si la requête est en POST, c'est que le visiteur a soumis le formulaire
@@ -111,7 +123,7 @@ class AdvertController extends Controller
     {
 		// Ici, on récupérera l'annonce correspondante à $id
 		$advert = array(
-			'title'   => 'Recherche développpeur Symfony',
+			'title'   => 'Recherche développpeur Symfony3',
 			'id'      => $id,
 			'author'  => 'Alexandre',
 			'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
