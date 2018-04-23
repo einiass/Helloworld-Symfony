@@ -1,13 +1,5 @@
 # src/OC/PlatformBundle/Resources/config/routing.yml
-
-annonces_accueil:
-    path:     /{page}
-    defaults: 
-        _controller: AnnoncesPlatformBundle:Advert:index
-        page:   1
-    requirements:
-        page:   \d*
-    
+     
 annonces_view:
     path:    /reference/{id}
     defaults: 

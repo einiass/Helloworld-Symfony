@@ -1,3 +1,13 @@
+annonces_core:
+    resource: "@AnnoncesCoreBundle/Resources/config/routing.yml"
+#    prefix:   /{_local}/{core}
+#    defaults: 
+#        _local:      fr
+#        core: accueil
+#    requirements:
+#        _local:   fr|en
+#        core: accueil|index|annonce
+        
 annonces_platform:
     resource: "@AnnoncesPlatformBundle/Resources/config/routing.yml"
     prefix:   /{_local}/annonce
@@ -5,3 +15,4 @@ annonces_platform:
         _local:      fr
     requirements:
         _local:   fr|en
+    

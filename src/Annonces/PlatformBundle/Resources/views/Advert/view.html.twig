@@ -8,11 +8,11 @@
 
 {% block annonces_body %}
 
-  <h2>{{ advert.title }}</h2>
-  <i>Par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}</i>
+  <h2>{{ advert.titre }}</h2>
+  <i>Par {{ advert.auteur }}, le {{ advert.date|date('d/m/Y') }}</i>
 
   <div class="well">
-    {{ advert.content }}
+    {{ advert.contenu }}
   </div>
 
   <p>

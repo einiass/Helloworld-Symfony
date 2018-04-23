@@ -9,45 +9,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
+use Annonces\PlatformBundle\Entity\Advert;
+
 class AdvertController extends Controller
 {
-    public function indexAction($page)
-    {
-		// ...
-
-		// Notre liste d'annonce en dur
-		$listAdverts = array(
-			array(
-				'title'   => 'Recherche développpeur Symfony3',
-				'id'      => 1,
-				'author'  => 'Alexandre',
-				'content' => 'Nous recherchons un développeur Symfony3 débutant sur Lyon. Blabla…',
-				'date'    => new \Datetime()
-			),
-			array(
-				'title'   => 'Mission de webmaster',
-				'id'      => 2,
-				'author'  => 'Hugo',
-				'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
-				'date'    => new \Datetime()
-			),
-			array(
-				'title'   => 'Offre de stage webdesigner',
-				'id'      => 3,
-				'author'  => 'Mathieu',
-				'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
-				'date'    => new \Datetime()
-			)
-		);
-		
-		// On a donc accès au conteneur :
-		$mailer = $this->container->get('mailer'); 
-		
-		// Et modifiez le 2nd argument pour injecter notre liste
-		$content = $this->render('@AnnoncesPlatform/Advert/index.html.twig', array('listAdverts' => $listAdverts));
-
-		return $content;
-    }
 	
 	public function menuAction($limit)
 	{
@@ -68,18 +33,19 @@ class AdvertController extends Controller
 	
 	public function viewAction($id)
     {
+		//$advert = $this->getDoctrine()->getManager()->find('AnnoncesPlatformBundle:Advert', $id)
 		
-		$advert = array(
-		  'title'   => 'Recherche développpeur Symfony3',
-		  'id'      => $id,
-		  'author'  => 'Alexandre',
-		  'content' => 'Nous recherchons un développeur Symfony3 débutant sur Lyon. Blabla…',
-		  'date'    => new \Datetime()
-		);
-
-		$content = $this->render('@AnnoncesPlatform/Advert/view.html.twig', array(
-		  'advert' => $advert
-		));
+		$em = $this->getDoctrine()->getManager();
+		$depot = $em->getRepository('AnnoncesPlatformBundle:Advert');
+		$advert = $depot->find($id);
+		
+		//$advert est donc une instance de Annonces\PlatformBundle\Entity\Advert
+		// ou null si l'id $id  n'existe pas, d'où ce if :
+		if (null === $advert) {
+		  throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+		}
+		
+		$content = $this->render('@AnnoncesPlatform/Advert/view.html.twig', array('advert' => $advert));
 	
 		return $content;
     }
@@ -92,6 +58,49 @@ class AdvertController extends Controller
 	
 	public function ajouterAction(Request $request)
     {
+		
+		$advert01 = new Advert();
+		$advert01->setTitre('Recherche développeur Symfony.');
+		$advert01->setAuteur('Elhadji');
+		$advert01->setContenu('Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…');
+		
+		// On peut ne pas définir ni la date ni la publication,
+
+		// car ces attributs sont définis automatiquement dans le constructeur
+
+
+		// On récupère l'EntityManager
+		$em = $this->getDoctrine()->getManager();
+		
+		// Étape 1 : On « persiste » l'entité
+		$em->persist($advert01);
+		
+		// On récupère l'annonce d'id 1. On n'a pas encore vu cette méthode find(),
+		// mais elle est simple à comprendre. Pas de panique, on la voit en détail
+		// dans un prochain chapitre dédié aux repositories
+		$advertRepo01 = $em->getRepository('AnnoncesPlatformBundle:Advert')->find(2);
+		
+		//on modifie la date de l'annonce récupérée
+		$date = new \Datetime();
+		$advertRepo01->setDate($date->modify('+2 hour'));
+		// Ici, pas besoin de faire un persist() sur $advert2. En effet, comme on a
+
+		// récupéré cette annonce via Doctrine, il sait déjà qu'il doit gérer cette
+		// entité. Rappelez-vous, un persist ne sert qu'à donner la responsabilité
+		// de l'objet à Doctrine. il est initule de faire un persiste
+		//$em->persist($advertRepo01);
+		
+		// Étape 2 : On « flush » tout ce qui a été persisté avant
+		// Enfin, on applique les deux changements à la base de données :
+		// Un INSERT INTO pour ajouter $advert01
+		// Et un UPDATE pour mettre à jour la date de $advertRepo01
+		
+		//retourne true si l'entité donnée en argument est gérée par l'EntityManager (s'il y a eu unpersist()sur l'entité donc)
+		//var_dump($em->contains($advert01));
+		
+		$em->flush();
+		
+		
 		// On récupère le service
 		$antispam = $this->container->get('annonces.antispam');
 

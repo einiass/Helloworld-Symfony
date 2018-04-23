@@ -1,0 +1,10 @@
+annonces_accueil:
+    path:     /
+    defaults: 
+        _controller: AnnoncesCoreBundle:Core:index
+        
+annonces_contact:
+    path:     /contact
+    defaults: 
+        _controller: AnnoncesCoreBundle:Core:contact
+        

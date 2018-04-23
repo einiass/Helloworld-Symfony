@@ -1,6 +1,4 @@
-{# src/Annonces/PlatformBundle/Resources/views/Advert/index.html.twig #}
-
-{# {% extends "AnnoncesPlatformBundle::layout.html.twig" %} #}
+{# src/Annonces/CoreBundle/Resources/views/Core/index.html.twig #}
 
 {% extends "@AnnoncesPlatform/layout.html.twig" %}
 
@@ -9,7 +7,12 @@
 {% endblock %}
 
 {% block annonces_body %}
-
+    <div>
+	  {% for message in app.session.flashbag.get('info') %}
+		<p> Message flash : {{ message }} </p>
+      {% endfor %}
+    </div>
+   
   <h2>Liste des annonces</h2>
 
   <ul>
