@@ -3,6 +3,7 @@
 namespace Annonces\PlatformBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Advert
@@ -56,11 +57,31 @@ class Advert
      */
     private $publiee = true;
 	
-	//Constructeur
+	/**
+	 *@ORM\OneToOne(targetEntity="Annonces\PlatformBundle\Entity\Image", cascade={"persist"})
+	 *
+	 */
+	 private $image;
+	 
+	/**
+	 *@ORM\ManyToMany(targetEntity="Annonces\PlatformBundle\Entity\Categorie", cascade={"persist"})
+	 *@ORM\JoinTable(name="annonces_advert_categorie")
+	 */
+	private $categories;
+	  
+	/**
+	 *@ORM\OneToMany(targetEntity="Annonces\PlatformBundle\Entity\Candidature", mappedBy="advert")
+	 *@ORM\JoinColumn(nullable=false)
+	 */
+	private $candidatures;
+	  
+	//Constructeur ////////////////////////////////////
 	public function __construct() 
 	{
 		$this->date = new \DateTime();
+		$this->categories = new ArrayCollection();
 	}
+
     /**
      * Get id
      *
@@ -189,5 +210,119 @@ class Advert
     public function getPubliee()
     {
         return $this->publiee;
+    }
+
+    /**
+     * Set image
+     *
+     * @param \Annonces\PlatformBundle\Entity\Image $image
+     *
+     * @return Advert
+     */
+    public function setImage(\Annonces\PlatformBundle\Entity\Image $image = null)
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * Get image
+     *
+     * @return \Annonces\PlatformBundle\Entity\Image
+     */
+    public function getImage()
+    {
+        return $this->image;
+    }
+
+
+
+    /**
+     * Set categories
+     *
+     * @param \Annonces\PlatformBundle\Entity\Categorie $categories
+     *
+     * @return Advert
+     */
+    public function setCategories(\Annonces\PlatformBundle\Entity\Categorie $categories = null)
+    {
+        $this->categories = $categories;
+
+        return $this;
+    }
+
+    /**
+     * Get categories
+     *
+     * @return \Annonces\PlatformBundle\Entity\Categorie
+     */
+    public function getCategories()
+    {
+        return $this->categories;
+    }
+ 
+    /**
+     * Add category
+     *
+     * @param \Annonces\PlatformBundle\Entity\Categorie $category
+     *
+     * @return Advert
+     */
+    public function addCategory(\Annonces\PlatformBundle\Entity\Categorie $category)
+    {
+        $this->categories[] = $category;
+
+        return $this;
+    }
+
+    /**
+     * Remove category
+     *
+     * @param \Annonces\PlatformBundle\Entity\Categorie $category
+     */
+    public function removeCategory(\Annonces\PlatformBundle\Entity\Categorie $category)
+    {
+        $this->categories->removeElement($category);
+    }
+
+    /**
+     * Add candidature
+     *
+     * @param \Annonces\PlatformBundle\Entity\Candidature $candidature
+     *
+     * @return Advert
+     */
+    public function addCandidature(\Annonces\PlatformBundle\Entity\Candidature $candidature)
+    {
+        $this->candidatures[] = $candidature;
+		
+		// On lie l'annonce à la candidature
+		$candidature->setAdvert($this);
+		
+        return $this;
+    }
+
+    /**
+     * Remove candidature
+     *
+     * @param \Annonces\PlatformBundle\Entity\Candidature $candidature
+     */
+    public function removeCandidature(\Annonces\PlatformBundle\Entity\Candidature $candidature)
+    {
+        $this->candidatures->removeElement($candidature);
+		
+		// Et si notre relation était facultative (nullable=true, ce qui n'est pas notre cas ici attention) :        
+		// $application->setAdvert(null);
+    }
+
+    /**
+     * Get candidatures
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCandidatures()
+    {
+        return $this->candidatures;
     }
 }

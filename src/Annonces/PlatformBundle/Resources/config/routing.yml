@@ -6,6 +6,13 @@ annonces_view:
         _controller: AnnoncesPlatformBundle:Advert:view
     requirements:
         id:   \d+
+        
+annonces_view_candidature:
+    path:    /candidature/{id}
+    defaults: 
+        _controller: AnnoncesPlatformBundle:Advert:viewCandidature
+    requirements:
+        id:   \d+
     
 annonces_annonce_courtText:
     path:    /{annee}/{courtText}.{_format}

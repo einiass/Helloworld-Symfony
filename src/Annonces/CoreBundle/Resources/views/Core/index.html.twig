@@ -14,18 +14,18 @@
     </div>
    
   <h2>Liste des annonces</h2>
-
+  
   <ul>
     {% for advert in listAdverts %}
-      <li>
-        <a href="{{ path('annonces_view', {'id': advert.id}) }}">
-          {{ advert.title }}
         </a>
-        par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}
-      </li>
+			<li>
+				<a href="{{ path('annonces_view', {'id': advert.id}) }}">{{ advert.titre }} </a> 
+				 postée par : <u>{{ advert.auteur }}</u>, le {{ advert.date | date('d/m/Y') }} 
+			</li>
     {% else %}
       <li>Pas (encore !) d'annonces</li>
     {% endfor %}
+	<br>
   </ul>
 
 {% endblock %}

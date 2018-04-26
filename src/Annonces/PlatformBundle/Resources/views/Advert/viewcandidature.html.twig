@@ -1,0 +1,18 @@
+{# src/Annonces/PlatformBundle/Resources/view/Advert/viewcandidature.html.twig #}
+
+{% extends "@AnnoncesPlatform/layout.html.twig" %}
+
+{% block title %}
+  Lecture d'une candidature - {{ parent() }}
+{% endblock %}
+
+{% block titre_body %}
+	<h2>Candidatures</h2>
+{% endblock %}
+
+{% block annonces_body %}
+
+	<h3>{{ candidature.auteur }}, le {{ candidature.date | date('d/m/Y H:i')}}</h3>
+	{{candidature.contenu }}
+
+{% endblock %}

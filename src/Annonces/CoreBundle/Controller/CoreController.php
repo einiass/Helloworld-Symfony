@@ -7,35 +7,21 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
+use Annonces\PlatformBundle\Entity\Advert;
+use Annonces\PlatformBundle\Entity\Image;
+use Annonces\PlatformBundle\Entity\Candidature;
+use Annonces\PlatformBundle\Entity\Categorie;
+
 class CoreController extends Controller
 {
     public function indexAction()
     {
 		// ...
 		// Notre liste d'annonce en dur
-		$listAdverts = array(
-			array(
-				'title'   => 'Recherche développpeur Symfony3',
-				'id'      => 1,
-				'author'  => 'Alexandre',
-				'content' => 'Nous recherchons un développeur Symfony3 débutant sur Lyon. Blabla…',
-				'date'    => new \Datetime()
-			),
-			array(
-				'title'   => 'Mission de webmaster',
-				'id'      => 2,
-				'author'  => 'Hugo',
-				'content' => 'Nous recherchons un webmaster capable de maintenir notre site internet. Blabla…',
-				'date'    => new \Datetime()
-			),
-			array(
-				'title'   => 'Offre de stage webdesigner',
-				'id'      => 3,
-				'author'  => 'Mathieu',
-				'content' => 'Nous proposons un poste pour webdesigner. Blabla…',
-				'date'    => new \Datetime()
-			)
-		);
+
+		$em = $this->getDoctrine()->getManager();
+		
+		$listAdverts = $em->getRepository('AnnoncesPlatformBundle:Advert')->findAll();
 		
 		// On a donc accès au conteneur :
 		$mailer = $this->container->get('mailer'); 

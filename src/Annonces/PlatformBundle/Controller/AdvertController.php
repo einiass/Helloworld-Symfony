@@ -10,6 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 use Annonces\PlatformBundle\Entity\Advert;
+use Annonces\PlatformBundle\Entity\Image;
+use Annonces\PlatformBundle\Entity\Candidature;
+use Annonces\PlatformBundle\Entity\Categorie;
+use Annonces\PlatformBundle\Entity\AdvertCompetence;
+use Annonces\PlatformBundle\Entity\Competence;
 
 class AdvertController extends Controller
 {
@@ -32,24 +37,45 @@ class AdvertController extends Controller
 	}
 	
 	public function viewAction($id)
-    {
+    {	
 		//$advert = $this->getDoctrine()->getManager()->find('AnnoncesPlatformBundle:Advert', $id)
 		
 		$em = $this->getDoctrine()->getManager();
+		
 		$depot = $em->getRepository('AnnoncesPlatformBundle:Advert');
+		
 		$advert = $depot->find($id);
 		
+
 		//$advert est donc une instance de Annonces\PlatformBundle\Entity\Advert
 		// ou null si l'id $id  n'existe pas, d'où ce if :
-		if (null === $advert) {
-		  throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+		if(null === $advert) {
+			throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
 		}
 		
-		$content = $this->render('@AnnoncesPlatform/Advert/view.html.twig', array('advert' => $advert));
-	
+		//on recupere la liste de candidature
+		$listCandidatures = $em->getRepository('AnnoncesPlatformBundle:Candidature')->findBy(array('advert' => $advert));
+		
+		$listAdvertCompetences = $em->getRepository('AnnoncesPlatformBundle:AdvertCompetence')->findBy(array('advert' => $advert));
+		
+		$content = $this->render('@AnnoncesPlatform/Advert/view.html.twig', array('advert' => $advert, 'listCandidatures' => $listCandidatures, 'listAdvertCompetences' => $listAdvertCompetences));
+		
 		return $content;
-    }
+    }	
 	
+	public function viewCandidatureAction($id)
+    {	
+	
+		$em = $this->getDoctrine()->getManager();
+		
+		$depot = $em->getRepository('AnnoncesPlatformBundle:Candidature');
+		
+		$candidature = $depot->find($id);
+		
+		$content = $this->render('@AnnoncesPlatform/Advert/viewcandidature.html.twig', array('candidature' => $candidature));
+		
+		return $content;
+    }	
 	public function viewCourtTextAction($_local, $annee, $courtText, $_format)
     {
 		return new Response("afficher  :  en ".$_local."   ".$annee."  ".$courtText."  ".$_format);
@@ -60,20 +86,70 @@ class AdvertController extends Controller
     {
 		
 		$advert01 = new Advert();
-		$advert01->setTitre('Recherche développeur Symfony.');
+		$advert01->setTitre('Rech développeur Symfony. Competence');
 		$advert01->setAuteur('Elhadji');
-		$advert01->setContenu('Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…');
+		$advert01->setContenu('Nous recherchons un développeur Competent Symfony débutant sur Lyon. Blabla…');
 		
 		// On peut ne pas définir ni la date ni la publication,
-
 		// car ces attributs sont définis automatiquement dans le constructeur
 
-
+		// Création de l'entité Image
+		$image = new Image();
+		$image->setUrl('http://sdz-upload.s3.amazonaws.com/prod/upload/job-de-reve.jpg');
+		$image->setAlt('Job de rêve');
+		
+		$advert01->setImage($image);
+		
 		// On récupère l'EntityManager
 		$em = $this->getDoctrine()->getManager();
 		
-		// Étape 1 : On « persiste » l'entité
+		//on recupere toutes les entités possible
+		$listeCompetences = $em->getRepository('AnnoncesPlatformBundle:Competence')->findAll();
+		
+		foreach($listeCompetences as $competence)
+		{
+			//on crée une relation entre l'annonce et la competence
+			$advertCompetence = new AdvertCompetence();
+			
+			// On la lie à l'annonce, qui est ici toujours la même
+			$advertCompetence->setAdvert($advert01);
+			
+			// On la lie à la compétence, qui change ici dans la boucle foreach
+			$advertCompetence->setCompetence($competence);
+			
+			// Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert
+			$advertCompetence->setNiveau('Expert');
+			
+			// Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
+			$em->persist($advertCompetence);
+		}
+		
+		// Doctrine ne connait pas encore l'entité $advert. Si vous n'avez pas défini la relation AdvertSkill
+		// avec un cascade persist (ce qui est le cas si vous avez utilisé mon code), alors on doit persister $advert
 		$em->persist($advert01);
+			
+		/*
+		//Ajout candidature 01
+		$candidature01 = new Candidature();
+		$candidature01->setAuteur('Marine');
+		$candidature01->setContenu("J'ai toutes les qualités requises.");
+		
+		//Ajout candidature 02
+		$candidature02 = new Candidature();
+		$candidature02->setAuteur('Pierre');
+		$candidature02->setContenu("Je suis très motivé.");
+		
+		//on lie les candidatures avec l'annonce
+		$candidature01->setAdvert($advert01);
+		$candidature02->setAdvert($advert01);
+		// Étape 1 : On « persiste » l'entité
+		//$em->persist($advert01); ----------
+		
+		// Étape 2 : pour cette relation pas de cascade lorsqu'on persiste Advert, car la relation est
+		// définie dans l'entité Application et non Advert. On doit donc tout persister à la main ici.
+		
+		//$em->persist($candidature01);---------------
+		//$em->persist($candidature02);---------------
 		
 		// On récupère l'annonce d'id 1. On n'a pas encore vu cette méthode find(),
 		// mais elle est simple à comprendre. Pas de panique, on la voit en détail
@@ -81,8 +157,8 @@ class AdvertController extends Controller
 		$advertRepo01 = $em->getRepository('AnnoncesPlatformBundle:Advert')->find(2);
 		
 		//on modifie la date de l'annonce récupérée
-		$date = new \Datetime();
-		$advertRepo01->setDate($date->modify('+2 hour'));
+		//$date = new \Datetime();
+		//$advertRepo01->setDate($date->modify('+2 hour'));
 		// Ici, pas besoin de faire un persist() sur $advert2. En effet, comme on a
 
 		// récupéré cette annonce via Doctrine, il sait déjà qu'il doit gérer cette
@@ -97,7 +173,8 @@ class AdvertController extends Controller
 		
 		//retourne true si l'entité donnée en argument est gérée par l'EntityManager (s'il y a eu unpersist()sur l'entité donc)
 		//var_dump($em->contains($advert01));
-		
+		*/
+		// On déclenche l'enregistrement
 		$em->flush();
 		
 		
@@ -131,21 +208,44 @@ class AdvertController extends Controller
 	public function modifierAction($id, Request $request)
     {
 		// Ici, on récupérera l'annonce correspondante à $id
-		$advert = array(
-			'title'   => 'Recherche développpeur Symfony3',
-			'id'      => $id,
-			'author'  => 'Alexandre',
-			'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-			'date'    => new \Datetime()
-		);
-
+		$em = $this->getDoctrine()->getManager();
+		$advert = $em->getRepository('AnnoncesPlatformBundle:Advert')->find($id);
+		
+		$listCategories = $em->getRepository('AnnoncesPlatformBundle:Categorie')->findAll();
+		
+		$listeCompetences = $em->getRepository('AnnoncesPlatformBundle:Competence')->findAll();
+		
+		foreach($listeCompetences as $competence)
+		{
+			//on crée une relation entre l'annonce et la competence
+			$advertCompetence = new AdvertCompetence(); //entité propriétaire
+			
+			// On la lie à l'annonce, qui est ici toujours la même
+			$advertCompetence->setAdvert($advert);
+			
+			// On la lie à la compétence, qui change ici dans la boucle foreach
+			$advertCompetence->setCompetence($competence);
+			
+			// Arbitrairement, on dit que chaque compétence est requise au niveau 'Expert
+			$advertCompetence->setNiveau('Expert');
+			
+			// Et bien sûr, on persiste cette entité de relation, propriétaire des deux autres relations
+			$em->persist($advertCompetence);
+		}
+		
+		foreach($listCategories as $categorie)
+		{
+			$advert->addCategory($categorie);
+		}
 		// Même mécanisme que pour l'ajout
 		if ($request->isMethod('POST')) {
 			$request->getSession()->getFlashBag()->add('info', 'Annonce bien modifiée.');
 
 			return $this->redirectToRoute('annonces_view', array('id' => $id));
 		}
-
+		
+		$em->flush();
+		
 		$content = $this->render('@AnnoncesPlatform/Advert/modifier.html.twig', array('advert' => $advert));
 		
 		return $content;
@@ -153,13 +253,27 @@ class AdvertController extends Controller
 	
 	public function supprimerAction($id)
     {
-		// Ici, on récupérera l'annonce correspondant à $id
+				// Ici, on récupérera l'annonce correspondante à $id
+		$em = $this->getDoctrine()->getManager();
+		$advert = $em->getRepository('AnnoncesPlatformBundle:Advert')->find($id);
+		
+		$listCategories = $em->getRepository('AnnoncesPlatformBundle:Categorie')->findAll();
+		
+		
+		foreach($listCategories as $categorie)
+		{
+			$advert->removeCategory($categorie);
+		}
+		// Même mécanisme que pour l'ajout
+		if ($request->isMethod('POST')) {
+			$request->getSession()->getFlashBag()->add('info', 'Annonce bien modifiée.');
 
-		// Ici, on gérera la suppression de l'annonce en question
+			return $this->redirectToRoute('annonces_view', array('id' => $id));
+		}
+		
+		$em->flush();
 
 		$content = $this->render('@AnnoncesPlatform/Advert/supprimer.html.twig', array('id' => $id));
-		
 		return $content;
     }
-	
 }
